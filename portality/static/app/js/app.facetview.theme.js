@@ -134,20 +134,23 @@ jQuery(document).ready(function($) {
 
     var facets = []
     facets.push({'field': '_type', 'display': 'Article/Journal'})
-    facets.push({'field': 'index.classification.exact', 'display': 'Subject Classification'})
-    facets.push({'field': 'index.language.exact', 'display': 'Language Code of Content'})
+    facets.push({'field': 'bibjson.identifier.type', 'display': 'Identifier Type'})
+    facets.push({'field': 'index.language.exact', 'display': 'Language of Content'})
     facets.push({'field': 'index.country.exact', 'display': 'Country of Publication'})
-    facets.push({'field': 'index.license.exact', 'display': 'Licence'})
+    facets.push({'field': 'bibjson.license.type.exact', 'display' : 'Article Licence (Detected)?'})
+    facets.push({'field': 'bibjson.license.BY', 'display' : 'Attribution (Detected)?'})
+    facets.push({'field': 'bibjson.license.SA', 'display' : 'Share Alike (Detected)?'})
+    facets.push({'field': 'bibjson.license.NC', 'display' : 'Non Commercial (Detected)?'})
+    facets.push({'field': 'bibjson.license.ND', 'display' : 'No Derivatives (Detected)?'})
+    facets.push({'field': 'index.license.exact', 'display': 'Asserted Journal Licence'})
     facets.push({'field': 'bibjson.provider.exact', 'display': 'Provider'})
     facets.push({'field': 'bibjson.deposit_policy.exact', 'display': 'Deposit Policy'})
     facets.push({'field': 'bibjson.author_copyright.copyright', 'display': 'Author Copyright?'})
     facets.push({'field': 'bibjson.author_publishing_rights.publishing_rights', 'display': 'Author Publishing Rights?'})
     facets.push({'field': 'bibjson.allows_fulltext_indexing', 'display': 'Allows Fulltext Indexing?'})
-    facets.push({'field': 'bibjson.persistent_identifier_scheme.exact', 'display': 'Persistent Identifiers'})
-    facets.push({'field': 'bibjson.format.exact', 'display': 'Content Format'})
     facets.push({'field': 'bibjson.apc.average_price', 'display': 'APC Average Price'})
     facets.push({'field': 'bibjson.submission_charges.average_price', 'display': 'Submission Average Price'})
-    facets.push({'field': 'index.date.exact', 'display': 'Publication Date'})
+
 
     var sortby = []
     sortby.push({'display':'Last Modified','field':'last_updated'})
