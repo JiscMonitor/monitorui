@@ -24,10 +24,11 @@ SSL = False
 # elasticsearch settings
 ELASTIC_SEARCH_HOST = "http://localhost:9200" # remember the http:// or https://
 ELASTIC_SEARCH_DB = "monitor"
-INITIALISE_INDEX = False # whether or not to try creating the index and required index types on startup
+INITIALISE_INDEX = True # whether or not to try creating the index and required index types on startup
 
 #QUERY_ENDPOINT = "http://staging.doaj.cottagelabs.com/query/journal,article"
-QUERY_ENDPOINT = "http://localhost:9200/doaj/article/_search"
+#QUERY_ENDPOINT = "http://localhost:9200/doaj/article/_search"
+QUERY_ENDPOINT = "http://ooz.cottagelabs.com:9200/monitor/article/_search"
 
 # can anonymous users get raw JSON records via the query endpoint?
 PUBLIC_ACCESSIBLE_JSON = True
@@ -49,12 +50,10 @@ SMTP_PASS = None
 
 # a dict of the ES mappings. identify by name, and include name as first object name
 # and identifier for how non-analyzed fields for faceting are differentiated in the mappings
-"""
 FACET_FIELD = ".exact"
 MAPPINGS = {
-    "reactor" : mappings.for_type(
-        "reactor",
-            mappings.properties(mappings.type_mapping("location", "geo_point")),
+    "article" : mappings.for_type(
+        "article",
             mappings.dynamic_templates(
             [
                 mappings.EXACT,
@@ -62,7 +61,6 @@ MAPPINGS = {
         )
     )
 }
-"""
 
 # ========================
 # QUERY SETTINGS
