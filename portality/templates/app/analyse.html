@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row-fluid">
+    <div class="span6">
+        <div id="reportview-licence-proportion"></div>
+    </div>
+    <div class="span6">
+        <h1 style="font-size: 300%; margin-bottom: 50px">Proportions of licences</h1>
+        <p style="font-size: 30px; margin-bottom: 50px; line-height: 40px">This chart shows the proportions of licences detected via OAG.  Hover over each section to see more
+        details on the numbers, or activate/deactivate segments using the legend at the top.</p>
+        <p style="font-size: 30px; margin-bottom: 50px; line-height: 40px">The total number of licences that we have detected so far is <span id="licence-count" style="font-weight: bold">0</span></p>
+    </div>
+</div>
+
+
+<div class="row-fluid">
+    <div class="span6">
+        <div id="reportview-licence-aspects"></div>
+    </div>
+    <div class="span6">
+        <h1 style="font-size: 300%; margin-bottom: 50px">Aspects of Detected Licences</h1>
+        <p style="font-size: 30px; margin-bottom: 50px; line-height: 40px">This graph shows the quantity of the licence constraints present across all openly licenced materials in the index detected by OAG.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js_bottom %}
+<script type="text/javascript">
+    var query_endpoint = "{{config.get("QUERY_ENDPOINT")}}"
+</script>
+<script type="text/javascript" src="/static/app/js/app.reportview.js"></script>
+{% endblock %}
