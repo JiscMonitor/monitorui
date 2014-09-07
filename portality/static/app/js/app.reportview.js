@@ -5,84 +5,183 @@ jQuery(document).ready(function($) {
      *****************************
      */
 
-    // Licence Proportions
+    // facetview instance for control
 
-    function licenceProportionPreRender(options, context) {
-        var total = options.data.found
-        $('#licence-count').html(total)
-    }
+    function customFrame(options) {
+        /*****************************************
+         * overrides must provide the following classes and ids
+         *
+         * id: facetview - main div in which the facetview functionality goes
+         * id: facetview_filters - div where the facet filters will be displayed
+         * id: facetview_rightcol - the main window for result display (doesn't have to be on the right)
+         * class: facetview_search_options_container - where the search bar and main controls will go
+         * id : facetview_selectedfilters - where we summarise the filters which have been selected
+         * class: facetview_metadata - where we want paging to go
+         * id: facetview_results - the table id for where the results actually go
+         * id: facetview_searching - where the loading notification can go
+         *
+         * Should respect the following configs
+         *
+         * options.debug - is this a debug enabled facetview.  If so, put a debug textarea somewhere
+         */
 
-    $('#reportview-licence-proportion').report({
-        type: "pie",
-        search_url: query_endpoint,
-        facets: [
-            {
-                "field" : "bibjson.license.type.exact",
-                "size" : 100,
-                "display" : "Licence Type"
-            }
-        ],
-        "fixed_filters" : [
-            {"exists" : {"field" : "bibjson.license.type"}}
-        ],
-        pre_render_callback: licenceProportionPreRender
-    });
+        // the facet view object to be appended to the page
+        var thefacetview = '<div id="facetview">';
 
-    // Aspects of Licences
+        // provde the facets a place to go
+        thefacetview += '<div class="row-fluid"><div class="span12"><div id="facetview_filters" style="padding-top:45px;"></div></div></div>'
 
-    function reduceAspectDataSeries(options, context) {
-        var series = options.data_series
-        var new_series = {"key" : "Licence Aspects", "values" : []}
-        for (var i = 0; i < series.length; i++) {
-            var os = series[i]
-            var thevalue = 0
-            for (var j = 0; j < os.values.length; j++) {
-                var val = os.values[j]
-                if (val.label === "T") {
-                    thevalue = val.value
-                }
-            }
-            var point = {"label" : os.key, "value" : thevalue}
-            new_series.values.push(point)
+        // insert loading notification
+        thefacetview += '<div class="row-fluid"><div class="span12"><div class="facetview_searching" style="display:none"></div></div></div>'
+
+        // debug window near the bottom
+        if (options.debug) {
+            thefacetview += '<div class="row-fluid"><div class="span12"><div class="facetview_debug" style="display:none"><textarea style="width: 95%; height: 150px"></textarea></div></div></div>'
         }
-        options.data_series = [new_series]
+
+        // close off the big container and return
+        thefacetview += '</div>';
+        return thefacetview
     }
 
-    /*
-    function tidyLabels(options, context) {
-        $("text[text-anchor='start']", context).each(function() {
-            var t = $(this).html()
-            $(this).html(t.split(".")[0])
+    function customFacetList(options) {
+        /*****************************************
+         * overrides must provide the following classes and ids
+         *
+         * none - no requirements for specific classes and ids
+         *
+         * should (not must) respect the following config
+         *
+         * options.render_terms_facet - renders a term facet into the list
+         * options.render_range_facet - renders a range facet into the list
+         * options.render_geo_facet - renders a geo distance facet into the list
+         */
+        if (options.facets.length > 0) {
+            var filters = options.facets;
+            var thefilters = '';
+            for (var idx = 0; idx < filters.length; idx++) {
+                thefilters += '<div style="float: left; padding-left: 30px">'
+                var facet = filters[idx]
+                var type = facet.type ? facet.type : "terms"
+                if (type === "terms") {
+                    thefilters += options.render_terms_facet(facet, options)
+                } else if (type === "range") {
+                    thefilters += options.render_range_facet(facet, options)
+                } else if (type === "geo_distance") {
+                    thefilters += options.render_geo_facet(facet, options)
+                }
+                thefilters += "</div>"
+            };
+            return thefilters
+        };
+        return ""
+    }
+
+    function updateReport(options, context) {
+        var fvfilters = getFilters({"options" : options})
+
+        // Licence Proportions
+
+        function licenceProportionPreRender(options, context) {
+            var total = options.data.found
+            $('#licence-count').html(total)
+        }
+
+        var filters = []
+        filters.push({"exists" : {"field" : "bibjson.license.type"}})
+        filters = filters.concat(fvfilters)
+
+        $('#reportview-licence-proportion').report({
+            type: "pie",
+            search_url: query_endpoint,
+            facets: [
+                {
+                    "field" : "bibjson.license.type.exact",
+                    "size" : 100,
+                    "display" : "Licence Type"
+                }
+            ],
+            "fixed_filters" : filters,
+            pre_render_callback: licenceProportionPreRender
+        });
+
+        // Aspects of Licences
+
+        function reduceAspectDataSeries(options, context) {
+            var series = options.data_series
+            var new_series = {"key" : "Licence Aspects", "values" : []}
+            for (var i = 0; i < series.length; i++) {
+                var os = series[i]
+                var thevalue = 0
+                for (var j = 0; j < os.values.length; j++) {
+                    var val = os.values[j]
+                    if (val.label === "T") {
+                        thevalue = val.value
+                    }
+                }
+                var point = {"label" : os.key, "value" : thevalue}
+                new_series.values.push(point)
+            }
+            options.data_series = [new_series]
+        }
+
+        $('#reportview-licence-aspects').report({
+            type: 'horizontal_multibar',
+            search_url: query_endpoint,
+            facets : [
+                {
+                    "field" : "bibjson.license.BY",
+                    "size" : 2,
+                    "display" : "BY"
+                },
+                {
+                    "field" : "bibjson.license.NC",
+                    "size" : 2,
+                    "display" : "NC"
+                },
+                {
+                    "field" : "bibjson.license.SA",
+                    "size" : 2,
+                    "display" : "SA"
+                },
+                {
+                    "field" : "bibjson.license.ND",
+                    "size" : 2,
+                    "display" : "ND"
+                }
+            ],
+            fixed_filters: fvfilters,
+            pre_render_callback: reduceAspectDataSeries
         })
     }
-    */
 
-    $('#reportview-licence-aspects').report({
-        type: 'horizontal_multibar',
+    $("#facetview-controls").facetview({
+        // debug: true,
         search_url: query_endpoint,
+        page_size: 0,
         facets : [
             {
-                "field" : "bibjson.license.BY",
-                "size" : 2,
-                "display" : "BY"
+                "field" : "index.country.exact",
+                "display" : "Country of Publication",
+                "open" : true,
+                "size" : 5
             },
             {
-                "field" : "bibjson.license.NC",
-                "size" : 2,
-                "display" : "NC"
+                "field" : "index.language.exact",
+                "display" : "Journal Language",
+                "open" : true,
+                "size" : 5
             },
             {
-                "field" : "bibjson.license.SA",
-                "size" : 2,
-                "display" : "SA"
-            },
-            {
-                "field" : "bibjson.license.ND",
-                "size" : 2,
-                "display" : "ND"
+                "field" : "index.publisher.exact",
+                "display" : "Publisher",
+                "open" : true,
+                "size" : 5
             }
         ],
-        pre_render_callback: reduceAspectDataSeries
+        pushstate: false,
+        render_the_facetview: customFrame,
+        render_facet_list: customFacetList,
+        post_search_callback: updateReport
     })
-
 });
