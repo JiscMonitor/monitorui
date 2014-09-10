@@ -133,7 +133,7 @@ jQuery(document).ready(function($) {
     }
 
     var facets = []
-    facets.push({'field': '_type', 'display': 'Article/Journal'})
+    facets.push({'field': '_type', 'display': 'Article/Journal', "hidden" : true})
     facets.push({'field': 'bibjson.identifier.type', 'display': 'Identifier Type'})
     facets.push({'field': 'index.language.exact', 'display': 'Language of Content'})
     facets.push({'field': 'index.country.exact', 'display': 'Country of Publication'})

@@ -91,6 +91,7 @@ jQuery(document).ready(function($) {
         filters.push({"exists" : {"field" : "bibjson.license.type"}})
         filters = filters.concat(fvfilters)
 
+        $('#reportview-licence-proportion').empty()
         $('#reportview-licence-proportion').report({
             type: "pie",
             search_url: query_endpoint,
@@ -101,7 +102,7 @@ jQuery(document).ready(function($) {
                     "display" : "Licence Type"
                 }
             ],
-            "fixed_filters" : filters,
+            fixed_filters : filters,
             pre_render_callback: licenceProportionPreRender
         });
 
@@ -125,6 +126,7 @@ jQuery(document).ready(function($) {
             options.data_series = [new_series]
         }
 
+        $('#reportview-licence-aspects').empty()
         $('#reportview-licence-aspects').report({
             type: 'horizontal_multibar',
             search_url: query_endpoint,
@@ -153,6 +155,45 @@ jQuery(document).ready(function($) {
             fixed_filters: fvfilters,
             pre_render_callback: reduceAspectDataSeries
         })
+
+        // similarities between claimed licence and actual licence
+
+        // obtain the licence types from the facet
+        var licence_types = []
+        for (var i = 0; i < options.facets.length; i++) {
+            var facet = options.facets[i]
+            if (facet.field === "bibjson.journal.license.type.exact") {
+                for (var j = 0; j < facet.values.length; j++) {
+                    var val = facet.values[j]
+                    licence_types.push(val.term)
+                }
+            }
+        }
+
+        $("#reportview-arbitrage-container").empty()
+        for (var i = 0; i < licence_types.length; i++) {
+            var t = licence_types[i]
+            var divid = "licence_" + t.replace(" ", "_")
+            $("#reportview-arbitrage-container").append("<div id='" + divid + "' class='arbitrage_report'><strong>Asserted Journal Licence: " + t + "</strong></div>")
+
+            var lfilters = []
+            lfilters.push({"term" : {"bibjson.journal.license.type.exact" : t}})
+            lfilters = lfilters.concat(fvfilters)
+
+            $("#" + divid).report({
+                type: "multibar",
+                search_url: query_endpoint,
+                facets: [
+                    {
+                        "field" : "bibjson.license.type.exact",
+                        "size" : 100,
+                        "display" : "Licence Type"
+                    }
+                ],
+                fixed_filters: lfilters
+            })
+        }
+
     }
 
     $("#facetview-controls").facetview({
@@ -177,11 +218,17 @@ jQuery(document).ready(function($) {
                 "display" : "Publisher",
                 "open" : true,
                 "size" : 5
+            },
+            {
+                "field" : "bibjson.journal.license.type.exact",
+                "display" : "Journal Licence",
+                "open" : true,
+                "size" : 5
             }
         ],
         pushstate: false,
         render_the_facetview: customFrame,
         render_facet_list: customFacetList,
-        post_search_callback: updateReport
+        post_render_callback: updateReport
     })
 });

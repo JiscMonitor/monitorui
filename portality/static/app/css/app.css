@@ -49,3 +49,12 @@
     height: 265px;
 }
 
+.arbitrage_report {
+    height: 300px;
+    width: 500px;
+    float: left;
+}
+.arbitrage_report .reportview {
+    height: 265px;
+}
+
